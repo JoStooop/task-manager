@@ -1,35 +1,25 @@
-interface authState {
+type AuthStatus = 'idle' | 'loading' | 'succeeded' | 'failed';
+
+export interface AuthState {
   token: null;
-  status: 'idle' | 'loading' | 'succeeded' | 'failed';
+  status: AuthStatus;
   error: string | null;
 }
 
-const initialState: authState = {
+const initialState: AuthState = {
   token: null,
   status: 'idle',
   error: null,
 };
 
-const authReducer = (state = initialState, action: any) => {
+const authReducer = (state = initialState, action: any): AuthState => {
   switch (action.type) {
     case 'LOGIN_REQUEST':
-      return {
-        ...state,
-        status: 'loading',
-        error: null,
-      };
+      return { ...state, status: 'loading', error: null };
     case 'LOGIN_SUCCESS':
-      return {
-        ...state,
-        status: 'succeeded',
-        token: action.payload,
-      };
+      return { ...state, status: 'succeeded', token: action.payload };
     case 'LOGIN_FAILURE':
-      return {
-        ...state,
-        status: 'failed',
-        error: action.payload,
-      };
+      return { ...state, status: 'failed', error: action.payload };
     default:
       return state;
   }
