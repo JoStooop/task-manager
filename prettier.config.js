@@ -1,5 +1,4 @@
-export default
-const config = {
+export default {
   semi: true, // Добавляем точку с запятой в конце строк
   singleQuote: true, // Используем одинарные кавычки
   trailingComma: 'all', // Добавляем запятые в конце объектов и массивов
