@@ -1,51 +1,50 @@
 import { ErrorMessage, Field, Form, Formik } from 'formik';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
-import { login } from '../feature/auth/authActions.ts';
-import { fetchTasksFailed } from '../feature/tasks/tasksActions.ts';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import {
+  register,
+  registerFailed,
+} from '../feature/register/registerAction.ts';
+import { RootState } from '../store/reducers';
 import { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-interface LoginFormValues {
+interface RegisterFormValue {
   email: string;
   password: string;
 }
 
-const initialValues: LoginFormValues = {
-  email: 'eve.holt@reqres.in',
-  password: 'cityslicka',
-};
+const initialValue: RegisterFormValue = { email: '', password: '' };
 
-const LoginScheme = Yup.object().shape({
+const RegisterScheme = Yup.object().shape({
   email: Yup.string().nullable().email('Невалидный email').required('Required'),
   password: Yup.string().required('Required'),
 });
 
-export const LoginPage = () => {
+export const RegisterPage = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { token, status } = useAppSelector((state) => state.auth);
+  const { token, status } = useAppSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     if (token && status === 'succeeded') {
       navigate('/tasks');
     }
-  }, [token, status, navigate]);
+  }, [dispatch, token, status]);
 
-  if (status === 'loading') return <div>Отправка запроса...</div>;
+  if (status === 'loading') return <div>Отправка запроса для регистрации</div>;
 
   return (
     <div>
-      <h1>Login</h1>
+      <h1>Register:</h1>
       <Formik
-        initialValues={initialValues}
-        validationSchema={LoginScheme}
-        onSubmit={(values: LoginFormValues, { setSubmitting }) => {
+        initialValues={initialValue}
+        validationSchema={RegisterScheme}
+        onSubmit={(value: RegisterFormValue, { setSubmitting }) => {
           try {
-            dispatch(login(values));
+            dispatch(register(value));
           } catch (error: any) {
-            dispatch(fetchTasksFailed(error.message));
-            console.error('Login failed:', error);
+            dispatch(registerFailed(error.message));
           } finally {
             setSubmitting(false);
           }
@@ -54,12 +53,17 @@ export const LoginPage = () => {
         {({ isSubmitting }) => (
           <Form>
             <div>
-              <label htmlFor="email">Email</label>
-              <Field type="email" name="email" id="email" />
+              <label htmlFor="email">email</label>
+              <Field
+                type="email"
+                name="email"
+                id="email"
+                autoComplete="email"
+              />
               <ErrorMessage name="email" component="div" />
             </div>
             <div>
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">password</label>
               <Field
                 type="password"
                 name="password"
@@ -69,7 +73,7 @@ export const LoginPage = () => {
               <ErrorMessage name="password" component="div" />
             </div>
             <button type="submit" disabled={isSubmitting}>
-              Login
+              Register
             </button>
           </Form>
         )}
