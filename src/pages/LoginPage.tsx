@@ -2,7 +2,7 @@ import { ErrorMessage, Field, Form, Formik } from 'formik';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
-import { login } from '../feature/auth/authActions.ts';
+import { login, loginFailed } from '../feature/auth/authActions.ts';
 import { fetchTasksFailed } from '../feature/tasks/tasksActions.ts';
 import { useEffect } from 'react';
 
@@ -44,7 +44,7 @@ export const LoginPage = () => {
           try {
             dispatch(login(values));
           } catch (error: any) {
-            dispatch(fetchTasksFailed(error.message));
+            dispatch(loginFailed(error.message));
             console.error('Login failed:', error);
           } finally {
             setSubmitting(false);

@@ -77,6 +77,15 @@ export const fetchTasksFailed = (error: string) => ({
 
 export const fetchTasks = (): AppThunk => {
   return async (dispatch) => {
+    const cachedTasks = localStorage.getItem('cachedTasks');
+
+    if (cachedTasks) {
+      dispatch(fetchTasksSuccess(JSON.parse(cachedTasks))); // Используем кешированные данные
+      return;
+    } else {
+      dispatch(fetchTasksSuccess([]));
+    }
+
     dispatch(fetchTasksRequest());
     try {
       const response = await fetch(
@@ -87,8 +96,8 @@ export const fetchTasks = (): AppThunk => {
         throw new Error('Failed to fetch tasks');
       }
       const data = await response.json();
-      console.log(data);
       dispatch(fetchTasksSuccess(data));
+      localStorage.setItem('cachedTasks', JSON.stringify(data));
       toast.success('Задачи загружены');
     } catch (error: any) {
       dispatch(fetchTasksFailed(error.message));
@@ -118,6 +127,12 @@ export const createTask = (task: Omit<Task, 'id'>): AppThunk => {
 
       const data = await response.json();
       dispatch(createTaskSuccess(data));
+      console.log(data);
+      localStorage.removeItem('cachedTasks');
+
+      // const currentTasks = getState().tasks.data || [];
+      // const updatedTasks = [data, ...currentTasks];
+      // localStorage.setItem('cachedTasks', JSON.stringify(updatedTasks));
     } catch (error: any) {
       dispatch(createTaskFailed(error.message));
     }
@@ -146,6 +161,7 @@ export const updateTask = (task: Task): AppThunk => {
 
       const data = await response.json();
       dispatch(updateTaskSuccess(data));
+      localStorage.removeItem('cachedTasks');
     } catch (error: any) {
       dispatch(updateTaskFailed(error.message));
     }
@@ -169,6 +185,7 @@ export const deleteTask = (id: number): AppThunk => {
       }
 
       dispatch(deleteTaskSuccess(id));
+      localStorage.removeItem('cachedTasks');
     } catch (error: any) {
       dispatch(deleteTaskFailed(error.message));
     }
